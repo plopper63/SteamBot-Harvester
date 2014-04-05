@@ -1,0 +1,211 @@
+using SteamKit2;
+using System.Collections.Generic;
+using SteamTrade;
+using System;
+using System.Threading;
+using SteamKit2.GC;
+using SteamKit2.GC.TF2;
+using SteamKit2.Internal;
+using SteamBot.TF2GC;
+namespace SteamBot
+{
+    public class SimpleUserHandler : UserHandler
+    {
+        public int ScrapPutUp;
+
+        public SimpleUserHandler (Bot bot, SteamID sid) : base(bot, sid) {}
+
+        public override bool OnGroupAdd()
+        {
+            return false;
+        }
+
+        public override bool OnFriendAdd () 
+        {
+            return true;
+        }
+        
+        
+        public override void OnLoginCompleted()
+        {
+            //Bot.AutoCraftAllWeps();
+            //Bot.AutoCraftAllScrap();
+            //Bot.AutoCraftAllRec();
+            //Bot.log.Info("");
+            //Bot.SteamTrade.Trade(76561198085256324);
+        }
+
+
+        public override void OnChatRoomMessage(SteamID chatID, SteamID sender, string message)
+        {
+            Log.Info(Bot.SteamFriends.GetFriendPersonaName(sender) + ": " + message);
+            base.OnChatRoomMessage(chatID, sender, message);
+        }
+
+        public override void OnFriendRemove () {}
+        
+        public override void OnMessage (string message, EChatEntryType type) 
+        {
+            if (message == ".moo")
+            {
+                Trade.SetReady(true);
+            }
+            if (message == ".craft_all")
+            {
+                Bot.AutoCraftAllWeps();
+            }
+            if (message == ".craft_scrap")
+            {
+                Bot.AutoCraftAllScrap();
+            }
+            if (message == ".craft_rec")
+            {
+                Bot.AutoCraftAllRec();
+            }
+            Bot.SteamFriends.SendChatMessage(OtherSID, type, Bot.ChatResponse);
+        }
+
+        public override bool OnTradeRequest() 
+        {
+            return true;
+        }
+        
+        public override void OnTradeError (string error) 
+        {
+            Bot.SteamFriends.SendChatMessage (OtherSID, 
+                                              EChatEntryType.ChatMsg,
+                                              "Oh, there was an error: " + error + "."
+                                              );
+            Bot.log.Warn (error);
+        }
+        
+        public override void OnTradeTimeout () 
+        {
+            Bot.SteamFriends.SendChatMessage (OtherSID, EChatEntryType.ChatMsg,
+                                              "Sorry, but you were AFK and the trade was canceled.");
+            Bot.log.Info ("User was kicked because he was AFK.");
+        }
+        
+        public override void OnTradeInit() 
+        {
+            Bot.log.Error("-------------------------------");
+            Bot.log.Error("[      Auto-adding items      ]");
+            Bot.log.Error("-------------------------------");
+            Trade.SendMessage("Auto-adding items. :3");
+            
+            //Trade.AddAllItemsByDefindex(5000);
+            //Trade.AddAllItemsByDefindex(5001);
+            //Trade.AddAllItemsByDefindex(5002);
+            for (int i = 1; i <= 9999; i++)
+            {
+                if (i == 9999)
+                {
+                    break;
+                }
+                Trade.AddAllItemsByDefindex(i);
+                
+            }
+
+        }
+
+        
+        public override void OnTradeAddItem (Schema.Item schemaItem, Inventory.Item inventoryItem) 
+        {
+            var item = Trade.CurrentSchema.GetItem(schemaItem.Defindex);
+            Bot.log.Success("User added: " + schemaItem.ItemName);
+        }
+        
+        public override void OnTradeRemoveItem (Schema.Item schemaItem, Inventory.Item inventoryItem) {}
+        
+        public override void OnTradeMessage (string message) {}
+        
+        public override void OnTradeReady (bool ready) 
+        {
+            Trade.SetReady(true);
+
+            try
+            {
+                if (Trade.AcceptTrade())
+                    Log.Success("Trade Accepted!");
+            }
+            catch
+            {
+                Log.Warn("The trade might have failed, but we can't be sure.");
+            }
+           /*if (!ready)
+            {
+                Trade.SetReady (false);
+            }
+            else
+            {
+                Trade.SetReady (true);
+                Trade.SendMessage ("Finished adding all items!");
+            }*/
+        }
+
+        public override void OnTradeSuccess()
+        {
+            // Trade completed successfully
+            Log.Success("Trade Complete.");
+        }
+
+        public override void OnTradeAccept() 
+        {
+            if (Validate() || IsAdmin)
+            {
+                //Even if it is successful, AcceptTrade can fail on
+                //trades with a lot of items so we use a try-catch
+                try {
+                    if (Trade.AcceptTrade())
+                        Log.Success("Trade Accepted!");
+                }
+                catch {
+                    Log.Warn ("The trade might have failed, but we can't be sure.");
+                }
+            }
+
+            OnTradeClose ();
+        }
+
+        public bool Validate ()
+        {            
+            ScrapPutUp = 0;
+            
+            List<string> errors = new List<string> ();
+            
+            /*foreach (ulong id in Trade.OtherOfferedItems)
+            {
+                var item = Trade.OtherInventory.GetItem (id);
+                if (item.Defindex == 5000)
+                    ScrapPutUp++;
+                else if (item.Defindex == 5001)
+                    ScrapPutUp += 3;
+                else if (item.Defindex == 5002)
+                    ScrapPutUp += 9;
+                else
+                {
+                    var schemaItem = Trade.CurrentSchema.GetItem (item.Defindex);
+                    errors.Add ("Item " + schemaItem.Name + " is not a metal.");
+                }
+            }
+            
+            if (ScrapPutUp < 1)
+            {
+                errors.Add ("You must put up at least 1 scrap.");
+            }
+            
+            // send the errors
+            if (errors.Count != 0)
+                Trade.SendMessage("There were errors in your trade: ");
+            foreach (string error in errors)
+            {
+                Trade.SendMessage(error);
+            }*/
+            
+            return errors.Count == 0;
+        }
+        
+    }
+ 
+}
+
