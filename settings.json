@@ -1,0 +1,37 @@
+{
+"Admins":["234567"],
+"ApiKey":"[API-KEY HERE]",
+"mainLog": "syslog.log",
+"UseSeparateProcesses": "false",
+"AutoStartAllBots": "false",
+"Bots": [
+        {
+            "Username":"blockcatidle1",
+            "Password":"PASSWORD",
+            "DisplayName":"01_BlockCat",
+            "ChatResponse":"",
+            "logFile": "TestBot.log",
+            "BotControlClass": "SteamBot.Autotrade",
+            "MaximumTradeTime":500,
+            "MaximumActionGap":100,
+            "DisplayNamePrefix":"",
+            "TradePollingInterval":800,
+            "LogLevel":"Success",
+            "AutoStart": "true"
+        },
+		{
+            "Username":"blockcatidle2",
+            "Password":"PASSWORD",
+            "DisplayName":"02_BlockCat",
+            "ChatResponse":"",
+            "logFile": "TestBot2.log",
+            "BotControlClass": "SteamBot.SimpleUserHandler",
+            "MaximumTradeTime":500,
+            "MaximumActionGap":100,
+            "DisplayNamePrefix":"",
+            "TradePollingInterval":800,
+            "LogLevel":"Success",
+            "AutoStart": "true"
+        }
+    ]
+}
